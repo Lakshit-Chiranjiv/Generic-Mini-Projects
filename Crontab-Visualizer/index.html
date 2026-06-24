@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CronOps // Visualizer — Modern Crontab Parser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-icon">🕒</span>
+        <div>
+          <h1>CronOps <span class="accent-text">// Visualizer</span></h1>
+          <p class="subtitle">Convert cryptic cron expressions into human-readable schedules instantly</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="app-workspace">
+      <!-- Input Panel -->
+      <section class="panel input-panel">
+        <h2 class="panel-title">1. Define Cron Expression</h2>
+        
+        <div class="input-group">
+          <label for="cron-input">Enter Cron Schedule</label>
+          <div class="cron-input-wrapper">
+            <input type="text" id="cron-input" placeholder="e.g., */15 9-17 * * 1-5" value="0 */6 * * *" autocomplete="off" spellcheck="false">
+            <button id="clear-btn" class="icon-btn" title="Clear expression">✕</button>
+          </div>
+          <p class="input-helper">Supports standard 5-field expressions (or optional 6th field for seconds/years).</p>
+        </div>
+
+        <!-- Field Visual Breakdown helper -->
+        <div class="cron-field-guide">
+          <div class="field-col" data-field="minute">
+            <span class="field-val" id="fg-min">0</span>
+            <span class="field-label">Min</span>
+          </div>
+          <div class="field-col" data-field="hour">
+            <span class="field-val" id="fg-hour">*/6</span>
+            <span class="field-label">Hour</span>
+          </div>
+          <div class="field-col" data-field="day">
+            <span class="field-val" id="fg-day">*</span>
+            <span class="field-label">Dom</span>
+          </div>
+          <div class="field-col" data-field="month">
+            <span class="field-val" id="fg-month">*</span>
+            <span class="field-label">Month</span>
+          </div>
+          <div class="field-col" data-field="weekday">
+            <span class="field-val" id="fg-weekday">*</span>
+            <span class="field-label">Dow</span>
+          </div>
+        </div>
+
+        <!-- Preset Templates -->
+        <div class="presets-section">
+          <h3>Common Presets</h3>
+          <div class="presets-grid">
+            <button class="preset-badge" data-cron="* * * * *">Every Minute</button>
+            <button class="preset-badge" data-cron="*/15 * * * *">Every 15 Minutes</button>
+            <button class="preset-badge" data-cron="0 * * * *">Hourly (At Min 0)</button>
+            <button class="preset-badge" data-cron="0 0 * * *">Daily at Midnight</button>
+            <button class="preset-badge" data-cron="0 9 * * 1-5">Weekdays at 9 AM</button>
+            <button class="preset-badge" data-cron="0 0 1 * *">First Day of Month</button>
+            <button class="preset-badge" data-cron="0 22 * * 5">Friday Night Backups (10 PM)</button>
+            <button class="preset-badge" data-cron="*/5 9-17 * * 1-5">Work Hours (Every 5m)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Output Panel -->
+      <section class="panel output-panel">
+        <h2 class="panel-title">2. Translation & Schedule</h2>
+
+        <!-- Explanation Card -->
+        <div class="result-card" id="result-card">
+          <div class="card-header">
+            <span class="status-indicator valid"></span>
+            <span class="status-label">Valid Schedule</span>
+            <button id="copy-btn" class="copy-btn" title="Copy translation text">
+              <span class="copy-icon">📋</span> Copy Explanation
+            </button>
+          </div>
+          <div class="card-body">
+            <p id="cron-explanation" class="explanation-text">Runs every 6 hours at minute 0</p>
+          </div>
+        </div>
+
+        <!-- Error Panel (Hidden by default) -->
+        <div class="error-card hidden" id="error-card">
+          <div class="card-header">
+            <span class="status-indicator invalid"></span>
+            <span class="status-label">Syntax Error</span>
+          </div>
+          <div class="card-body">
+            <p id="error-message" class="error-text">Invalid cron expression details will appear here.</p>
+          </div>
+        </div>
+
+        <!-- Next Executions Section -->
+        <div class="schedule-section">
+          <div class="schedule-header">
+            <h3>Upcoming execution times (Next 10 runs)</h3>
+            <div class="timezone-controls">
+              <label for="tz-select" class="sr-only">Timezone</label>
+              <select id="tz-select">
+                <option value="local" selected>Local Timezone</option>
+                <option value="utc">UTC (+00:00)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="runs-container">
+            <ul id="executions-list" class="executions-list">
+              <!-- JS will inject list items dynamically here -->
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Built as a DevOps Learning Sandbox. Powered by <code>cronstrue</code> & <code>cron-parser</code>.</p>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
