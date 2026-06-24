@@ -1,0 +1,24 @@
+# Task Checklist: Web3 Gas Price Tracker Dashboard
+
+- `[x]` **Phase 1: Project Setup & Asset Configuration**
+  - `[x]` Create necessary directories and configurations
+  - `[x]` Choose visual icons (using FontAwesome CDN for clean icons)
+- `[x]` **Phase 2: Build Visual Structure (`index.html`)**
+  - `[x]` Set up modern HTML5 shell with Google Fonts and CDNs (Chart.js, FontAwesome)
+  - `[x]` Code the layout: Navbar, Gas Cards, Controls & Input panel, Chart container, Info panel, and Footer
+- `[x]` **Phase 3: Craft Premium Design System (`styles.css`)**
+  - `[x]` Implement base tokens (vibrant dark theme by default, sleek light theme variables)
+  - `[x]` Style card layouts with backdrop filters (glassmorphism), neon border accents, and transitions
+  - `[x]` Write custom micro-animations (pulse glow, spin icons, slider transitions)
+- `[x]` **Phase 4: Implement App Controller Logic (`app.js`)**
+  - `[x]` Write the State Manager (gas data, history arrays, theme, active threshold, and simulator settings)
+  - `[x]` Build the **High-Fidelity Gas Price Simulator** (random walk algorithm mimicking Ethereum gas shifts)
+  - `[x]` Write standard Etherscan/RPC Gas Oracle integration with robust error catching
+  - `[x]` Setup periodic auto-polling (12-second block intervals) with visual progress feedback
+- `[x]` **Phase 5: Visualizations & In-Browser Notifications**
+  - `[x]` Integrate and style the **Chart.js** historical gas trend visualizer (area chart with gradient fills)
+  - `[x]` Hook up the Gas Threshold alerts with the Notification API (safe permissions checks and event listeners)
+  - `[x]` Add local storage persistence for thresholds, historical points, and theme modes
+- `[x]` **Phase 6: Verification & Final Polish**
+  - `[x]` Verify styling, reactivity, mock states, and threshold notification triggers (User-approved)
+  - `[x]` Create the final `walkthrough.md` summarizing the project learning outcomes
