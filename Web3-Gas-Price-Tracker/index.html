@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GasGlow // Web3 Gas Price Tracker Dashboard</title>
+    <!-- Google Fonts: Outfit (headings) & Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Web3 & UI Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER SECTION -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon-wrapper">
+                    <i class="fa-solid fa-gas-pump logo-icon"></i>
+                    <i class="fa-brands fa-ethereum eth-badge"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>GasGlow</h1>
+                    <span class="logo-tagline">Real-Time Ethereum Gas Tracker</span>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <!-- Status Pill indicating simulation or live mode -->
+                <div id="connection-status" class="status-pill simulator-active">
+                    <span class="pulse-dot"></span>
+                    <span id="status-text">Simulator Mode</span>
+                </div>
+
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                
+                <!-- Quick Info Reset Button -->
+                <button id="manual-refresh" class="icon-btn btn-primary" title="Force Refresh Gas Prices" aria-label="Force Refresh">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- LIVE NETWORK METRICS SUMMARY BAR -->
+        <section class="metrics-summary-bar">
+            <div class="summary-item">
+                <i class="fa-solid fa-cube summary-icon"></i>
+                <div>
+                    <span class="summary-label">Latest Block</span>
+                    <span id="latest-block-num" class="summary-value">#17,942,108</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <i class="fa-solid fa-gauge-high summary-icon"></i>
+                <div>
+                    <span class="summary-label">Network Load</span>
+                    <span id="network-load-val" class="summary-value">48% (Optimal)</span>
+                </div>
+            </div>
+            <div class="summary-item">
+                <i class="fa-solid fa-hourglass-half summary-icon"></i>
+                <div>
+                    <span class="summary-label">Next Update</span>
+                    <div class="refresh-countdown-container">
+                        <span id="countdown-timer" class="summary-value">12s</span>
+                        <div class="progress-bar-bg">
+                            <div id="countdown-progress" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN LAYOUT GRID -->
+        <main class="dashboard-grid">
+            
+            <!-- SECTION 1: GAS PRICES CARDS -->
+            <section class="gas-cards-container" aria-label="Current Gas Prices">
+                <!-- SLOW GAS CARD -->
+                <div class="gas-card slow" id="card-slow">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <span class="gas-tier-label">Slow</span>
+                            <span class="speed-indicator"><i class="fa-solid fa-circle-check"></i> Standard Tx</span>
+                        </div>
+                        <i class="fa-solid fa-wind card-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="price-display">
+                            <span id="price-slow" class="gas-price-value">--</span>
+                            <span class="gwei-label">Gwei</span>
+                        </div>
+                        <div class="price-details">
+                            <span class="tx-time-est"><i class="fa-solid fa-clock"></i> Est: <strong id="time-slow">~5 mins</strong></span>
+                            <span class="fee-split" id="fee-slow">Base: -- | Tip: --</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-glow"></div>
+                </div>
+
+                <!-- STANDARD GAS CARD -->
+                <div class="gas-card standard" id="card-standard">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <span class="gas-tier-label">Standard</span>
+                            <span class="speed-indicator"><i class="fa-solid fa-bolt"></i> Market Rate</span>
+                        </div>
+                        <i class="fa-solid fa-gauge-simple card-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="price-display">
+                            <span id="price-standard" class="gas-price-value">--</span>
+                            <span class="gwei-label">Gwei</span>
+                        </div>
+                        <div class="price-details">
+                            <span class="tx-time-est"><i class="fa-solid fa-clock"></i> Est: <strong id="time-standard">~2 mins</strong></span>
+                            <span class="fee-split" id="fee-standard">Base: -- | Tip: --</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-glow"></div>
+                </div>
+
+                <!-- FAST GAS CARD -->
+                <div class="gas-card fast" id="card-fast">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <span class="gas-tier-label">Fast</span>
+                            <span class="speed-indicator"><i class="fa-solid fa-fire"></i> Priority Tx</span>
+                        </div>
+                        <i class="fa-solid fa-rocket card-icon"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="price-display">
+                            <span id="price-fast" class="gas-price-value">--</span>
+                            <span class="gwei-label">Gwei</span>
+                        </div>
+                        <div class="price-details">
+                            <span class="tx-time-est"><i class="fa-solid fa-clock"></i> Est: <strong id="time-fast">~15 secs</strong></span>
+                            <span class="fee-split" id="fee-fast">Base: -- | Tip: --</span>
+                        </div>
+                    </div>
+                    <div class="card-footer-glow"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: CONTROLS & SETTINGS (LEFT COLUMN) -->
+            <section class="dashboard-panel settings-panel" aria-label="Controls and Settings">
+                <h2 class="panel-title"><i class="fa-solid fa-sliders"></i> Control Dashboard</h2>
+                
+                <!-- SUB-PANEL A: GAS THRESHOLD ALERT -->
+                <div class="settings-group">
+                    <div class="settings-group-header">
+                        <h3>Threshold Alert System</h3>
+                        <span id="alert-status-badge" class="badge badge-inactive">Inactive</span>
+                    </div>
+                    
+                    <p class="settings-description">
+                        Receive a standard desktop alert immediately when the Standard gas price drops below your custom setting.
+                    </p>
+
+                    <!-- Alert Indicator Panel -->
+                    <div id="threshold-trigger-alert" class="threshold-status-box disabled">
+                        <i class="fa-solid fa-circle-info status-box-icon"></i>
+                        <span id="threshold-status-message">Setup your target threshold below.</span>
+                    </div>
+
+                    <!-- Slider Configuration -->
+                    <div class="slider-control">
+                        <div class="slider-labels">
+                            <span class="slider-min">5 Gwei</span>
+                            <span id="slider-current-val" class="slider-current">Target: 30 Gwei</span>
+                            <span class="slider-max">100 Gwei</span>
+                        </div>
+                        <input type="range" id="threshold-slider" min="5" max="100" value="30" class="premium-slider">
+                    </div>
+
+                    <!-- Enable Permissions & Alerts Button -->
+                    <button id="enable-notifications" class="action-btn">
+                        <i class="fa-solid fa-bell"></i> Enable Browser Alerts
+                    </button>
+                </div>
+
+                <!-- SUB-PANEL B: API MODE CONTROLLER -->
+                <div class="settings-group">
+                    <h3>Data Stream Settings</h3>
+                    
+                    <!-- Live Data Toggle Switch -->
+                    <div class="toggle-control">
+                        <div class="toggle-labels">
+                            <span class="toggle-title">Connect Live Etherscan API</span>
+                            <span class="toggle-subtitle">Uses real mainnet blockchain metrics</span>
+                        </div>
+                        <label class="switch-container" aria-label="Toggle Live API Data">
+                            <input type="checkbox" id="live-mode-toggle">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Custom API Key Input Drawer -->
+                    <div id="api-key-drawer" class="drawer collapsed">
+                        <div class="input-group">
+                            <label for="etherscan-api-key">Etherscan API Key</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-key input-icon"></i>
+                                <input type="password" id="etherscan-api-key" placeholder="Paste your API key here..." autocomplete="off">
+                                <button id="toggle-key-visibility" class="inner-input-btn" title="Toggle visibility"><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <p class="input-helper">
+                            Don't have an API key? You can generate one for free in 2 minutes on the <a href="https://etherscan.io/apis" target="_blank" rel="noopener noreferrer">Etherscan Developer Portal <i class="fa-solid fa-up-right-from-square"></i></a>. A free key gives you up to 5 requests/sec!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- SUB-PANEL C: MOCK SPEED CONTROL -->
+                <div class="settings-group" id="mock-controls-group">
+                    <h3>Gas Simulation Speed</h3>
+                    <div class="segmented-control">
+                        <button class="segment-btn active" data-speed="normal">Normal</button>
+                        <button class="segment-btn" data-speed="volatile">Volatile</button>
+                        <button class="segment-btn" data-speed="extreme">Deep Dip</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: VISUAL HISTORICAL TREND (RIGHT COLUMN) -->
+            <section class="dashboard-panel chart-panel" aria-label="Historical Gas Trend">
+                <div class="panel-header-row">
+                    <h2 class="panel-title"><i class="fa-solid fa-chart-line"></i> Historical Gas Trend (24h)</h2>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot standard"></span>Standard Gas</span>
+                    </div>
+                </div>
+                
+                <div class="chart-canvas-container">
+                    <canvas id="gas-trend-chart"></canvas>
+                </div>
+
+                <div class="chart-footer-row">
+                    <span class="last-refreshed-text"><i class="fa-solid fa-clock-rotate-left"></i> Last updated: <span id="last-update-time">--:--:--</span></span>
+                    <span class="trend-direction" id="gas-trend-indicator"><i class="fa-solid fa-minus"></i> Stable</span>
+                </div>
+            </section>
+
+            <!-- SECTION 4: EDUCATIONAL LEARNING HUB -->
+            <section class="dashboard-panel info-panel" aria-label="Web3 Education Center">
+                <h2 class="panel-title"><i class="fa-solid fa-graduation-cap"></i> Web3 Concept Corner</h2>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-number">01</span>
+                            <h3>What is Gwei?</h3>
+                        </div>
+                        <p>Gwei is a micro-denomination of Ether (ETH), standing for "Giga-Wei" (1 Gwei = 1,000,000,000 Wei, or 10<sup>-9</sup> ETH). Just as pennies represent fractions of dollars, Gwei measures gas prices, making it easy to express small transaction costs.</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-number">02</span>
+                            <h3>How EIP-1559 Works</h3>
+                        </div>
+                        <p>Ethereum uses EIP-1559 since 2021. Transaction fees are split into two: a <strong>Base Fee</strong> (set by the protocol depending on network congestion, and permanently <strong>burned</strong> to decrease ETH supply) and a <strong>Priority Fee / Tip</strong> (optional extra fee given directly to validators to speed up transaction inclusion).</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <span class="info-card-number">03</span>
+                            <h3>Why Gas Fluctuates</h3>
+                        </div>
+                        <p>Gas prices shift based on demand for blockspace. During high-intensity moments—like popular NFT mints, major market swings, or DeFi yield rushes—hundreds of users submit transactions concurrently. Since blocks have a maximum capacity, users tip higher amounts to outbid others, driving up base fees.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER SECTION -->
+        <footer class="app-footer">
+            <p>Made with <i class="fa-solid fa-heart footer-heart"></i> for learning Web3 Development. No gas fees were harmed making this app.</p>
+            <div class="footer-links">
+                <a href="https://ethereum.org/en/developers/docs/gas/" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-ethereum"></i> Ethereum Docs</a>
+                <span class="footer-divider">|</span>
+                <a href="https://etherscan.io/gastracker" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-chart-area"></i> Etherscan Gas Tracker</a>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Script Logic File -->
+    <script src="app.js"></script>
+</body>
+</html>
